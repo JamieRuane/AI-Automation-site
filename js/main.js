@@ -2,6 +2,29 @@
   "use strict";
   var cfg = window.FLOWNET_CONFIG || {};
 
+  /* Colour theme */
+  var themeToggle = document.getElementById("theme-toggle");
+  var root = document.documentElement;
+  var storedTheme;
+  try { storedTheme = localStorage.getItem("ampel-theme"); } catch (e) { storedTheme = null; }
+  if (storedTheme === "light" || storedTheme === "dark") root.setAttribute("data-theme", storedTheme);
+  function updateThemeToggle() {
+    if (!themeToggle) return;
+    var light = root.getAttribute("data-theme") === "light";
+    themeToggle.setAttribute("aria-pressed", light ? "true" : "false");
+    themeToggle.querySelector(".theme-label").textContent = light ? "Dark mode" : "Light mode";
+    themeToggle.querySelector(".theme-icon").textContent = light ? "☾" : "☀";
+  }
+  updateThemeToggle();
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("ampel-theme", next); } catch (e) { /* storage unavailable */ }
+      updateThemeToggle();
+    });
+  }
+
   /* Mobile navigation */
   var toggle = document.getElementById("nav-toggle");
   var links = document.getElementById("nav-links");
@@ -96,7 +119,7 @@
     if (recentlySent(key)) { done(); return; }
 
     if (!cfg.webhookUrl) {
-      if (window.console) console.warn("FlowNet: no webhookUrl set in js/config.js, so the enquiry was not sent.");
+      if (window.console) console.warn("Ampel: no webhookUrl set in js/config.js, so the enquiry was not sent.");
       show("We couldn't send your request right now. Please try again shortly.");
       return;
     }
